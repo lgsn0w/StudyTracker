@@ -1,7 +1,9 @@
 import tkinter as tk
 from tkinter import messagebox
+from app import SecondScreen
 
-from app.database import signup, login, create_connection
+from database.database import UserManager
+
 
 class GUI:
     def __init__(self):
@@ -28,26 +30,43 @@ class GUI:
         self.button_signup.grid(row=2, column=0, columnspan=2, padx=10, pady=10)
         self.button_login.grid(row=3, column=0, columnspan=2, padx=10, pady=10)
 
+        # Create an instance of the UserManager class
+        self.manager = UserManager('users.db')
+
     def signup(self):
         username = self.entry_username.get()
         password = self.entry_password.get()
         # Perform signup logic
-        signup(conn, username, password)
+        self.manager.signup(username, password)
         messagebox.showinfo("Sign Up", "You have successfully signed up!")
 
     def login(self):
         username = self.entry_username.get()
         password = self.entry_password.get()
         # Perform login logic
-        login(conn, username, password)
+        if self.manager.login(username, password):
+            self.show_second_screen()
+        else:
+            messagebox.showerror("Login Failed", "Invalid username or password.")
 
     def run(self):
         self.root.mainloop()
 
+    def show_second_screen(self):
+        # Hide the root window
+        self.root.withdraw()
 
-# Create a database connection
-conn = create_connection('users.db')
+        # Create a new instance of the SecondScreen class
+        second_screen_root = tk.Tk()
+        second_screen = SecondScreen(second_screen_root)
 
-# Create an instance of the GUI class
-gui = GUI()
-gui.run()
+        # Run the second screen
+        second_screen_root.mainloop()
+
+
+if __name__ == "__main__":
+    # Create an instance of the GUI class
+    gui = GUI()
+
+    # Run the GUI
+    gui.run()
